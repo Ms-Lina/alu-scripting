@@ -5,13 +5,22 @@ Contains the number_of_subscribers function
 
 import requests
 
-
 def number_of_subscribers(subreddit):
-    """returns the number of subscribers for a given subreddit"""
-    if subreddit is None or type(subreddit) is not str:
+    """
+    Return the number of subscribers for a given subreddit.
+    
+    subreddit: str, the name of the subreddit
+    return: int, the number of subscribers or 0 if the subreddit is invalid
+    """
+    url = f"https://www.reddit.com/r/{subreddit}/about.json"
+    headers = {'User-Agent': 'Custom User Agent'}  # Add a custom user agent to prevent errors
+
+    try:
+        response = requests.get(url, headers=headers, allow_redirects=False)
+        if response.status_code == 200:
+            data = response.json()
+            if 'data' in data and 'subscribers' in data['data']:
+                return data['data']['subscribers']
         return 0
-    r = requests.get('http://www.reddit.com/r/{}/about.json'.format(subreddit),
-                     headers={'User-Agent': 'Python/requests:APIproject:\
-v1.0.0 (by /u/aaorrico23)'}).json()
-    subs = r.get("data", {}).get("subscribers", 0)
-    return subs
+    except requests.RequestException:
+        return 0
